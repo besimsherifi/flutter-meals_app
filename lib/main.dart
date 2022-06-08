@@ -1,6 +1,8 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter_complete_guide/dummy_data.dart';
+import 'package:flutter_complete_guide/models/meal.dart';
 import 'package:flutter_complete_guide/screens/filter_screen.dart';
 import 'package:flutter_complete_guide/screens/meal_detail_screen.dart';
 import 'package:flutter_complete_guide/screens/tabs_screen.dart';
@@ -10,9 +12,31 @@ import 'screens/categories_screen.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
 
-  
+class _MyAppState extends State<MyApp> {
+  List<Meal> favoriteMeals = [];
+
+  void toggleFavorite(String mealId) {
+    final existingIndex = favoriteMeals.indexWhere((meal) => meal.id == mealId);
+    if (existingIndex >= 0) {
+      setState(() {
+        favoriteMeals.removeAt(existingIndex);
+      });
+    } else {
+      setState(() {
+        favoriteMeals.add(DUMMY_MEALS.firstWhere((meal) => meal.id == mealId));
+      });
+    }
+  }
+
+  bool isMealFav(String id){
+    return favoriteMeals.any((meal) => meal.id == id);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -38,9 +62,9 @@ class MyApp extends StatelessWidget {
       // home: CategoriesScreen(),
       initialRoute: '/', // default is '/'
       routes: {
-        '/': (ctx) => TabsScreen(),
+        '/': (ctx) => TabsScreen(favoriteMeals),
         CategoryMealsScreen.routeName: (ctx) => CategoryMealsScreen(),
-        MealDetailScreen.routeName: (ctx) => MealDetailScreen(),
+        MealDetailScreen.routeName: (ctx) => MealDetailScreen(toggleFavorite, isMealFav),
         FilterScreen.routeName: (ctx) => FilterScreen()
       },
       onUnknownRoute: (settings) {
